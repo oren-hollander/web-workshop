@@ -3,7 +3,7 @@ const button = document.getElementById('add-todo')
 const input = document.getElementById('new-todo')
 
 button.addEventListener('click', async () => {
-  const response = await fetch('http://localhost:3000/api', {
+  await fetch('http://localhost:3000/api', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ task: input.value })
