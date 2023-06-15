@@ -1,17 +1,16 @@
 {
-  "name": "server",
+  "name": "web-workshop",
   "version": "1.0.0",
-  "description": "",
+  "description": "## Build a todo app server using Node.js and Express ## Build a todo app client using pure HTML and JavaScript ## Demonstrate how to use ChatGPT ## Demonstrate how to use GitHub Copilot",
   "main": "src/server.js",
   "scripts": {
-    "start": "node src/server.js"
+    "dev": "node src/server.js"
   },
   "keywords": [],
-  "author": "Oren Hollander",
+  "author": "",
   "license": "ISC",
   "dependencies": {
-    "prettier": "^2.8.8",
-    "nanoid": "^3.3.6",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "nanoid": "^3.3.6"
   }
 }

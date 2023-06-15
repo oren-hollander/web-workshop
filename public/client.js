@@ -1,99 +1,89 @@
-async function list() {
-  const response = await fetch('http://localhost:3000/api', {
-    method: 'GET'
-  })
+console.log('Hello World!');
 
-  return await response.json()
+async function list() {
+    const response = await fetch('http://localhost:3000/api', {method: 'GET'})
+    return await response.json()
 }
 
 async function add(task) {
-  await fetch('http://localhost:3000/api', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ task })
-  })
-  await paint(await list())
-}
-
-async function toggle(todo) {
-  await fetch(`http://localhost:3000/api/${todo.id}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ done: !todo.done })
-  })
-  await paint(await list())
+    await fetch('http://localhost:3000/api', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({task})
+    })
+    paint(await list())
 }
 
 async function deleteTodo(id) {
-  await fetch(`http://localhost:3000/api/${id}`, {
-    method: 'DELETE'
-  })
-  await paint(await list())
+    await fetch(`http://localhost:3000/api/${id}`, {method: 'DELETE'})
+    paint(await list())
 }
 
-function paintTodos(todos) {
-  const todosDiv = document.createElement('div')
+async function update(id, done) {
+    await fetch(`http://localhost:3000/api/${id}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({done})
+    })
+    paint(await list())
+}
 
-  for (const todo of todos) {
-    const todoDiv = document.createElement('div')
-    todoDiv.style.cursor = 'pointer'
-    todoDiv.style.margin = '0.3em'
+function paintTodoList(todos) {
+    const listDiv = document.createElement('div')
 
-    todoDiv.addEventListener('click', () => toggle(todo))
+    for (const todo of todos) {
+        const todoDiv = document.createElement('div')
 
-    const deleteButton = document.createElement('button')
-    deleteButton.style.marginRight = '10px'
-    deleteButton.style.backgroundColor = 'red'
-    deleteButton.style.color = 'white'
-    deleteButton.style.border = '0'
+        const taskSpan = document.createElement('span')
+        taskSpan.style.cursor = 'pointer'
+        taskSpan.innerText = todo.task
+        taskSpan.style.textDecoration = todo.done ? 'line-through' : 'none'
+        taskSpan.addEventListener('click', async () => await update(todo.id, !todo.done))
 
-    deleteButton.style.borderRadius = '13px'
-    deleteButton.innerText = 'X'
-    deleteButton.addEventListener('click', () => deleteTodo(todo.id))
-    todoDiv.appendChild(deleteButton)
+        const deleteButton = document.createElement('button')
+        deleteButton.innerText = 'X'
+        deleteButton.addEventListener('click', async () => await deleteTodo (todo.id))
 
-    const task = document.createTextNode(todo.task)
-    if (todo.done) {
-      todoDiv.style.textDecoration = 'line-through'
+        todoDiv.appendChild(deleteButton)
+        todoDiv.appendChild(taskSpan)
+
+        listDiv.appendChild(todoDiv)
     }
-    todoDiv.appendChild(task)
 
-    todosDiv.appendChild(todoDiv)
-  }
-
-  return todosDiv
-}
-
-function paintApp(todos) {
-  const content = document.createElement('div')
-  content.appendChild(paintTodos(todos))
-
-  const newTodo = document.createElement('input')
-  newTodo.addEventListener('input', () => {
-    addTodoButton.disabled = newTodo.value === ''
-  })
-
-  newTodo.type = 'text'
-  content.appendChild(newTodo)
-
-  const addTodoButton = document.createElement('button')
-  addTodoButton.style.margin = '0.5em'
-  addTodoButton.innerText = 'Add'
-  addTodoButton.disabled = true
-
-  addTodoButton.addEventListener('click', () => add(newTodo.value))
-  content.appendChild(addTodoButton)
-
-  return content
+    return listDiv
 }
 
 function paint(todos) {
-  document.body.innerHTML = ''
-  document.body.appendChild(paintApp(todos))
+    document.body.innerHTML = ''
+
+    document.body.appendChild(paintTodoList(todos))
+
+    const input = document.createElement('input')
+    input.type = 'text'
+
+    input.addEventListener('input', () => {button.disabled = input.value === ''})
+
+    const label = document.createElement('label')
+    label.innerText = 'Task: '
+    label.appendChild(input)
+
+    document.body.appendChild(label)
+
+
+    const button = document.createElement('button')
+    button.disabled = true
+    button.innerText = 'Add'
+
+    button.addEventListener('click', async () => {
+        await add(input.value)
+    })
+
+    document.body.appendChild(button)
+
 }
 
 async function main() {
-  paint(await list())
+    paint(await list())
 }
 
-main().then(() => {})
+main().catch(error => console.error(error.message))
