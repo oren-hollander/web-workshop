@@ -1,23 +1,31 @@
-const { nanoid } = require('nanoid');
+const { MongoClient, ObjectId } = require('mongodb');
 
-let todos = [];
+// { _id: <ObjectID>, task: 'Buy milk', done: false }
 
-// { id: 'dflgadfljg', task: 'Buy milk', done: false }
-
-function add(task) {
-    todos.push({id: nanoid(8), task, done: false })
+function getCollection() {
+    const url = 'mongodb://localhost:27017';
+    const client = new MongoClient(url);
+    return client.db('todos-db').collection('todos')
 }
 
-function list() {
-    return todos
+async function add(task) {
+    await getCollection().insertOne({ task, done: false })
 }
 
-function deleteTodo(id) {
-    todos = todos.filter(todo => todo.id !== id)
+async function list() {
+    const todos = await getCollection().find().toArray()
+
+    return todos.map(todo => ({ id: todo._id.toHexString(), task: todo.task, done: todo.done }))
 }
 
-function update(id, done) {
-    todos = todos.map(todo => (todo.id === id ? { id, task: todo.task, done } : todo))
+async function deleteTodo(id) {
+    const _id = ObjectId.createFromHexString(id)
+    await getCollection().deleteOne({_id})
+}
+
+async function update(id, done) {
+    const _id = ObjectId.createFromHexString(id)
+    await getCollection().updateOne({_id}, {$set: {done}})
 }
 
 

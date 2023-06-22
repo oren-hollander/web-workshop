@@ -10,22 +10,23 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
-app.get('/api', (req, res) => {
-    res.status(200).json(list());
+app.get('/api', async (req, res) => {
+    const todos = await list();
+    res.status(200).json(todos);
 });
 
-app.post('/api', (req, res) => {
-    add(req.body.task);
+app.post('/api', async (req, res) => {
+    await add(req.body.task);
     res.status(200).send('OK');
 });
 
-app.delete('/api/:id', (req, res) => {
-    deleteTodo(req.params.id);
+app.delete('/api/:id', async (req, res) => {
+    await deleteTodo(req.params.id);
     res.status(200).send('OK');
 })
 
-app.post('/api/:id', (req, res) => {
-    update(req.params.id, req.body.done);
+app.post('/api/:id', async (req, res) => {
+    await update(req.params.id, req.body.done);
     res.status(200).send('OK');
 })
 
